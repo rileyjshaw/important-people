@@ -21,9 +21,8 @@ def test ():
 
 
 def count_words ( soup ):
-    # soup.getText()
-    print 'count_words is not ready yet :('
-    return 404
+    words = soup.getText()
+    return len( words.split() )
 
 
 def describe_person ( url ):
@@ -31,7 +30,7 @@ def describe_person ( url ):
     page_content = soup.find( id = 'content' )
     name = page_content.find( 'h1', id = 'firstHeading' ).getText()
     words = count_words( page_content.find ( id = 'mw-content-text' ) )
-
+    print [ name, words ]
     return [ name, words ]
 
 
@@ -64,5 +63,6 @@ def run( first, last ):
         important_people['births'][year] = scrape_list( wiki_base + list_base + str( year ) + births, [] )
     organize()
 
-test()
-#run( 1900, 1980 )
+
+# test()
+run( 1900, 1980 )
