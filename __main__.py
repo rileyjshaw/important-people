@@ -1,76 +1,52 @@
 from BeautifulSoup import BeautifulSoup
-import urllib2
+from urllib2 import urlopen
 wiki_base = 'http://en.wikipedia.org'
 list_base = '/w/index.php?title=Category:'
 births = '_births'
 deaths = '_deaths'
-list_page = urllib2.urlopen( wiki_base + list_base + '1900' + deaths )
-soup = BeautifulSoup( list_page )
-
-page_content = soup.find( 'div', { 'id': 'mw-pages'} )
-next_page = page_content.find( 'a', text = 'next 200' ).parent.get( 'href' )
-
-links = []
-
-for column in page_content.findAll( 'td' ):
-    for link in column.findAll( 'a' ):
-        links.append( link.get( 'href' ) )
-
-person_page = urllib2.urlopen( 'http://en.wikipedia.org' + links[ 0 ] )
-soup = BeautifulSoup( person_page )
-
-print links
-print soup.prettify()
-print next_page
-
-
-'''
-
-Follow every link in .mw-content-ltr
-
-Enter article
-
-Record name as #firstHeading > span
-Record word count in #mw-content-text
-
-analyze = function ( article ) {
-
+important_people = {
+    'births': {},
+#    'deaths': {},
 }
 
-demo = function ( list ) {
-  analyze( list .mw-content-ltr a );
-}
 
-demo( 'http://en.wikipedia.org/w/index.php?title=Category:1900_deaths' );
+def count_words ( soup ):
+    # soup.get_text()
+    print 'count_words is not ready yet :('
+    return 404
 
-important_births = {
-  '1900': [
-      [ 'Albert Einstein', 8000 ],
-      [ 'Blbert Einstein', 4000 ],
-      [ 'Clbert Einstein', 2000 ]
-    ],
-  '1901': #etc...
-}
 
-for year in important_births:
-  contents.sort( key = lambda x: x[ 1 ] )
+def describe_person ( year, url ):
+    soup = BeautifulSoup( urlopen( url ) )
+    page_content = soup.find( id = 'content' )
+    name = page_content.find( id = 'firstHeading' ).get_text()
+    words = count_words( page_content.find ( id = 'mw-content-text' )
+    return [ name, words ]
 
-births = {
- '1900': [
-  ['Alpha', 8000],
-  ['Beta', 4000],
-  ['Delta', 2000]
- ],
- '1901': [
-  ['Air Bud', 1000],
-  ['Air Bud 2', 0]
- ]
-}
 
-for year, people in births.items():
-  people.sort( key = lambda x: x[ 1 ] )
+def scrape_list ( url, results ):
+    if url is False:
+        return results
 
-print births
+    soup = BeautifulSoup( urlopen( url ) )
+    page_content = soup.find( 'div', { 'id': 'mw-pages'} )
 
-'''
+    try:
+        next_page = page_content.find( 'a', text = 'next 200' ).parent.get( 'href' )
+    except AttributeError as e:
+        next_page = False
 
+    for column in page_content.findAll( 'td' ):
+        for link in column.findAll( 'a' ):
+            results.append( describe_person( wiki_base + link.get( 'href' ) ) )
+
+    return scrape_list( next_page, results )
+
+
+for year in range( 1900, 1981 ):
+    important_people['births'][year] = scrape_list( wiki_base + list_base + str( year ) + births, [] )
+
+for year, people in important_people['births'].items():
+    people.sort( key = lambda x: x[ 1 ] )
+
+print important_people
