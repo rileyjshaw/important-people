@@ -13,14 +13,16 @@ important_people = {
 def count_words ( soup ):
     # soup.get_text()
     print 'count_words is not ready yet :('
+
     return 404
 
 
-def describe_person ( year, url ):
+def describe_person ( url ):
     soup = BeautifulSoup( urlopen( url ) )
     page_content = soup.find( id = 'content' )
     name = page_content.find( id = 'firstHeading' ).get_text()
     words = count_words( page_content.find ( id = 'mw-content-text' )
+
     return [ name, words ]
 
 
