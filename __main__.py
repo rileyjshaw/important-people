@@ -11,8 +11,8 @@ list_base = '/w/index.php?title=Category:'
 births = '_births'
 deaths = '_deaths'
 important_people = {
-    'births': {},
-#    'deaths': {},
+#    'births': {},
+    'deaths': {},
 }
 
 
@@ -61,7 +61,7 @@ def scrape_list(url, results):
 
 
 def organize():
-    for year, people in important_people['births'].items():
+    for year, people in important_people['deaths'].items():
         people.sort(key = lambda x: x[1], reverse = True)
 
 
@@ -70,14 +70,14 @@ def run(first, last = sentinel):
         last = first
 
     for year in range(first, last + 1):
-        important_people['births'][year] = scrape_list(wiki_base + list_base + unicode(year) + births, [])
+        important_people['deaths'][year] = scrape_list(wiki_base + list_base + unicode(year) + deaths, [])
 
     organize()
 
-    with io.open(unicode(first) + '-' + unicode(last) + '-births.json', 'w', encoding='utf-8') as f:
+    with io.open(unicode(first) + '-' + unicode(last) + '-death.json', 'w', encoding='utf-8') as f:
       f.write(unicode(json.dumps(important_people, ensure_ascii = False)))
 
 
-run(1987)
+run(1991)
 
 print 'Completed in ' + unicode(datetime.now() - startTime)
